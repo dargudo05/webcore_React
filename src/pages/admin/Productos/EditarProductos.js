@@ -11,7 +11,8 @@ export default function EditarProductos() {
         nombre: "",
         marca: "",
         categoria: "",
-        precio: ""
+        precio: "",
+        estado: "a"
     });
 
     const [errores, setErrores] = useState({});
@@ -29,7 +30,8 @@ export default function EditarProductos() {
                         nombre: data.response.nombre,
                         marca: data.response.marca,
                         categoria: data.response.categoria,
-                        precio: data.response.precio
+                        precio: data.response.precio,
+                        estado: data.response.estado
                     });
                     setCargando(false);
                 } else {
@@ -48,13 +50,6 @@ export default function EditarProductos() {
         let mensaje = "";
 
         switch (campo) {
-            case "codigoBarra":
-                if (!/^\d*$/.test(valor))
-                    mensaje = "Solo se permiten números";
-                else if (valor.length !== 8)
-                    mensaje = "Debe tener exactamente 8 dígitos";
-                break;
-
             case "nombre":
             case "marca":
             case "categoria":
@@ -65,6 +60,12 @@ export default function EditarProductos() {
             case "precio":
                 if (valor === "" || Number(valor) <= 0)
                     mensaje = "El precio debe ser mayor a 0";
+                break;
+
+            case "estado":
+                if (valor !== "a" && valor !== "i") {
+                    mensaje = "Debe seleccionar un estado válido";
+                }
                 break;
 
             default:
@@ -132,6 +133,7 @@ export default function EditarProductos() {
                 <input
                     name="codigoBarra"
                     type="text"
+                    readOnly
                     value={producto.codigoBarra}
                     onChange={handleChange}
                     className="form-control"
@@ -189,17 +191,36 @@ export default function EditarProductos() {
                     <small className="text-danger">{errores.precio}</small>
                 )}
 
-                <button
-                    type="submit"
-                    className="btn btn-primary mt-4 me-2"
-                    disabled={formularioInvalido}
-                >
-                    Guardar Cambios
-                </button>
+                <p className="mt-3"><b>Estado</b></p>
+                <select name="estado" 
+                className="form-select" 
+                aria-label="Default select example"
+                 value={producto.estado}
+                onChange={handleChange}>
+                    <option selected>Seleccionar estado</option>
+                    <option value="a">Activo</option>
+                    <option value="i">Inactivo</option>
+                </select>
 
-                <Link to="/admin/Productos" className="btn btn-outline-secondary mt-4">
-                    Cancelar
-                </Link>
+                {errores.estado && (
+                    <small className="text-danger">{errores.estado}</small>
+                )}
+
+                <div className="d-flex align-items-center"> 
+
+                    <button
+                        type="submit"
+                        className="btn btn-primary mt-4 me-2"
+                        disabled={formularioInvalido}
+                    >
+                        Guardar Producto
+                    </button>
+
+                    <Link to="/admin/Productos" className="btn btn-outline-secondary mt-4 me-2">
+                        Cancelar
+                    </Link>
+
+                </div>
             </form>
         </div>
     );

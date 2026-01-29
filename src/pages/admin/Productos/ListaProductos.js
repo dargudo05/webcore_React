@@ -3,31 +3,24 @@ import { Link } from "react-router-dom";
 
 export default function ListaProductos() {
     const [productos, setProductos] = useState([]);
-    const [idABuscar, setIdABuscar] = useState("");
+    const [CodigoABuscar, setCodigoABuscar] = useState("");
 
-    const buscarPorId = () => {
-        if (!idABuscar) {
+    const buscarPorCodigo = () => {
+        if (!CodigoABuscar) {
             obtenerProductos();
             return;
         }
 
-        fetch(`http://localhost:5118/api/Productos/Obtener/${idABuscar}`)
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                throw new Error("No se pudo conectar con el servidor");
-            })
-            .then(data => {
-                if (data.response) {               
-                    setProductos([data.response]); 
-                } else {
-                    alert("No existe un producto con ese ID");
-                }
-            })
-            .catch(error => {
-                alert("Error en la búsqueda. Verifique que el ID sea un número.");
-            });
+        const resultado = productos.find(p => 
+        p.codigoBarra === CodigoABuscar || p.idProducto.toString() === CodigoABuscar);
+
+        if (resultado) {
+            setProductos([resultado]); 
+        } else {
+            alert("No se encontró ningún producto con ese código.");
+            setCodigoABuscar("");
+        }
+
     };
 
     function obtenerProductos() {
@@ -40,6 +33,7 @@ export default function ListaProductos() {
                 throw new Error()
             })
             .then(data => {
+                setCodigoABuscar("");
                 setProductos(data.response)
             })
             .catch(error => {
@@ -53,7 +47,7 @@ export default function ListaProductos() {
     function BorrarProducto(id) {
         if (window.confirm("¿Está seguro de eliminar el producto con ID " + id + "?")) {
             fetch(`http://localhost:5118/api/Productos/Eliminar/${id}`, {
-                method: "DELETE"
+                method: "PATCH"
             })
             .then(response => {
                 if (response.ok) {
@@ -76,8 +70,8 @@ export default function ListaProductos() {
                 <div className="col">
                     <Link className="btn btn-primary me-2" to="/admin/Productos/Crear">Agregar Producto</Link>
                     <button className="btn btn-outline-primary" onClick={obtenerProductos}>Refrescar</button>
-                    <input type="number" class="form-control" placeholder="Ingresar ID del producto." value={idABuscar} onChange={(e) => setIdABuscar(e.target.value)}/>
-                    <button className="btn btn-primary" type="button" onClick={buscarPorId}> Buscar</button>
+                    <input type="number" class="form-control" placeholder="Ingresar código de barras del producto" value={CodigoABuscar} onChange={(e) => setCodigoABuscar(e.target.value)}/>
+                    <button className="btn btn-primary" type="button" onClick={buscarPorCodigo}> Buscar</button>
                 </div>
             </div>
 
@@ -90,6 +84,7 @@ export default function ListaProductos() {
                         <th>Marca</th>
                         <th>Categoría</th>
                         <th>Precio</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -102,6 +97,7 @@ export default function ListaProductos() {
                         <td>{product.marca}</td>
                         <td>{product.categoria}</td>
                         <td>{product.precio}</td>
+                        <td>{product.estado}</td>
                         <td style={{ minWidth: "150px" }}>
                             <Link
                                 className="btn btn-sm btn-warning me-2"

@@ -5,27 +5,22 @@ export default function AñadirProductos() {
     const navigate = useNavigate();
 
     const [producto, setProducto] = useState({
-        codigoBarra: "",
+        codigoBarra: Date.now().toString().slice(-8),
         nombre: "",
         marca: "",
         categoria: "",
-        precio: ""
+        precio: "",
+        estado: "a"
     });
 
     const [errores, setErrores] = useState({});
+
+    // Validación de campos
 
     function validar(campo, valor) {
         let mensaje = "";
 
         switch (campo) {
-            case "codigoBarra":
-                if (!/^\d*$/.test(valor)) {
-                    mensaje = "Solo se permiten números";
-                } else if (valor.length !== 8) {
-                    mensaje = "Debe tener exactamente 8 dígitos";
-                }
-                break;
-
             case "nombre":
             case "marca":
             case "categoria":
@@ -40,12 +35,20 @@ export default function AñadirProductos() {
                 }
                 break;
 
+            case "estado":
+            if (valor !== "a" && valor !== "i") {
+                mensaje = "Debe seleccionar un estado válido";
+            }
+            break;
+
             default:
                 break;
         }
 
         return mensaje;
     }
+
+    // Manejo de cambios y envío del formulario
 
     function handleChange(e) {
         const { name, value } = e.target;
@@ -99,14 +102,12 @@ export default function AñadirProductos() {
                 <input
                     name="codigoBarra"
                     type="text"
+                    readOnly
                     value={producto.codigoBarra}
                     onChange={handleChange}
                     className="form-control"
-                    placeholder="Ej: 12345678"
+                    placeholder="Debe escribir 8 dígitos"
                 />
-                {errores.codigoBarra && (
-                    <small className="text-danger">{errores.codigoBarra}</small>
-                )}
 
                 <p className="mt-3"><b>Nombre</b></p>
                 <input
@@ -161,18 +162,39 @@ export default function AñadirProductos() {
                     <small className="text-danger">{errores.precio}</small>
                 )}
 
-                <button
-                    type="submit"
-                    className="btn btn-primary mt-4 me-2"
-                    disabled={formularioInvalido}
-                >
-                    Guardar Producto
-                </button>
+                <p className="mt-3"><b>Estado</b></p>
+                <select name="estado" 
+                className="form-select" 
+                aria-label="Default select example"
+                 value={producto.estado}
+                    onChange={handleChange}>
+                    <option selected>Seleccionar estado</option>
+                    <option value="a">Activo</option>
+                    <option value="i">Inactivo</option>
+                </select>
 
-                <Link to="/admin/Productos" className="btn btn-outline-secondary mt-4">
-                    Cancelar
-                </Link>
+                {errores.estado && (
+                    <small className="text-danger">{errores.estado}</small>
+                )}
+
+                <div className="d-flex align-items-center"> 
+
+                    <button
+                        type="submit"
+                        className="btn btn-primary mt-4 me-2"
+                        disabled={formularioInvalido}
+                    >
+                        Guardar Producto
+                    </button>
+
+                    <Link to="/admin/Productos" className="btn btn-outline-secondary mt-4 me-2">
+                        Cancelar
+                    </Link>
+
+                </div>
+
             </form>
         </div>
+        
     );
 }
